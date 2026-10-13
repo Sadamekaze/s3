@@ -93,7 +93,10 @@ public static class ArchiveReader
         long relative = (long)U32(data, 0) - EventBase;
         if (relative < 8 || relative % 8 != 0 || relative + 0x58 > data.Length) return null;
         int root = (int)relative;
-        if (U32(data, root) != 0 || U32(data, root + 0x34) is not (0x259000 or 0x25D000)) return null;
+        if (U32(data, root) != 0) return null;
+        long capacity = U32(data, root + 0x34);
+        if (capacity <= EventBase || capacity > EventBase + (long)Capacity ||
+            data.Length > capacity - EventBase) return null;
         foreach (int field in EventPointerFields)
         {
             uint ptr = U32(data, root + field);
